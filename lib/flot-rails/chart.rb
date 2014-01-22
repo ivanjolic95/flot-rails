@@ -33,14 +33,25 @@ module Flot
     width = opts.delete(:width) || 600
     width = width.to_s + 'px' if width.kind_of?(Integer)
 
+    ajax = opts.delete(:ajax) || false
+
     div = "<div class=\"inner\" id=\"#{uniq_name}\" style=\"width:#{width};height:#{height};\"></div>"
-    script = <<-HTML
+
+    unless ajax
+      script = <<-HTML
 <script type='text/javascript'>
   $(window).load(function () {
     $.plot($("##{uniq_name}"), #{dataset.to_s.gsub(/:(\w*)=>/, '\1: ').gsub(/(\[|\{)(\[|\{)/, '\1' + "\n" + '\2  ').gsub(/],/, "],\n")}#{(', ' + opts.to_s.gsub(/:(\w*)=>/, '\1: ')) unless opts.empty? } );
   });
 </script>
     HTML
+    else 
+      script = <<-HTML
+<script type='text/javascript'>
+    $.plot($("##{uniq_name}"), #{dataset.to_s.gsub(/:(\w*)=>/, '\1: ').gsub(/(\[|\{)(\[|\{)/, '\1' + "\n" + '\2  ').gsub(/],/, "],\n")}#{(', ' + opts.to_s.gsub(/:(\w*)=>/, '\1: ')) unless opts.empty? } );
+</script>
+    HTML
+    end
 
     if split_flag
       @__chart_script_content << script
