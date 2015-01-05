@@ -41,7 +41,7 @@ module Flot
       script = <<-HTML
 <script type='text/javascript'>
   $(window).load(function () {
-    $.plot($("##{uniq_name}"), #{dataset.to_s.gsub(/:(\w*)=>/, '\1: ').gsub(/(\[|\{)(\[|\{)/, '\1' + "\n" + '\2  ').gsub(/],/, "],\n")}#{(', ' + opts.to_s.gsub(/:(\w*)=>/, '\1: ')) unless opts.empty? } );
+    $.plot($("##{uniq_name}"), #{dataset.to_json},#{ opts.to_json || {}  } );
   });
 </script>
     HTML
