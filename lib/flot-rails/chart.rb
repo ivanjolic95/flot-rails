@@ -63,6 +63,7 @@ module Flot
 </script>
     HTML
       end
+    end
 
     if split_flag
       @__chart_script_content << script
