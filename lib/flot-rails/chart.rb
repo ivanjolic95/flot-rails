@@ -14,7 +14,7 @@ module Flot
   def on_hover
   end
 
-  def chart(dataset, opts={})
+  def chart(is_in_tab, dataset, opts={})
     @__chart_script_content ||= []
 
     split_flag = opts.delete(:split)
@@ -37,21 +37,32 @@ module Flot
 
     div = "<div class=\"inner\" id=\"#{uniq_name}\" style=\"width:#{width};height:#{height};\"></div>"
 
-    unless ajax
+    if is_in_tab
       script = <<-HTML
+<script type='text/javascript'>
+  $(document).ready(function () {
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      $.plot($("##{uniq_name}"), #{dataset.to_json},#{ opts.to_json || {}  } );
+    });
+  });
+</script>
+    HTML
+    else
+      unless ajax
+        script = <<-HTML
 <script type='text/javascript'>
   $(document).ready(function () {
     $.plot($("##{uniq_name}"), #{dataset.to_json},#{ opts.to_json || {}  } );
   });
 </script>
     HTML
-    else
-      script = <<-HTML
+      else
+        script = <<-HTML
 <script type='text/javascript'>
     $.plot($("##{uniq_name}"), #{dataset.to_s.gsub(/:(\w*)=>/, '\1: ').gsub(/(\[|\{)(\[|\{)/, '\1' + "\n" + '\2  ').gsub(/],/, "],\n")}#{(', ' + opts.to_s.gsub(/:(\w*)=>/, '\1: ')) unless opts.empty? } );
 </script>
     HTML
-    end
+      end
 
     if split_flag
       @__chart_script_content << script
@@ -66,8 +77,8 @@ module Flot
   end
 
   def self.chart_type(name)
-    define_method [name, 'chart'].join('_') do |ds, opts={}|
-      chart(ds, BaseOpts[name].merge(opts))
+    define_method [name, 'chart'].join('_') do |it, ds, opts={}|
+      chart(it, ds, BaseOpts[name].merge(opts))
     end
   end
 
